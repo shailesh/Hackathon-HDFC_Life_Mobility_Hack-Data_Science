@@ -1,7 +1,16 @@
 import requests
+from twilio.rest import TwilioRestClient
 from bs4 import BeautifulSoup
 import sys, select
 from urlparse import urlparse
+
+ACCOUNT_SID = 'ACd3b93f42e01ee88dae905dc43c918518'
+AUTH_TOKEN = 'fb53ad4602e42b7ed6cce7b0a97a4d43'
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
+def wait_minute():
+    import time
+    time.sleep(60)
 
 class Item:
 
@@ -169,13 +178,14 @@ def add_item_to_track(items):
         temp_item = Item(company, url, notif_p)
         
         if temp_item.actual_p > temp_item.notif_p:
+	    items.append(temp_item)
+            client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Item price is more than notification price. you will be notified.")
             print "\n---------------Item price is already less than notification price---------------"
-            return
+            wait_minute()
+	    return
         else:
-            items.append(temp_item)
-            print"You will be Notified"
+            print"no need to be Notified"
     except:
-        print "An error occured"
         pass
 
 
@@ -212,14 +222,20 @@ def edit_notification_price(items):
 	print "\n---------------Number of items is less than given index-------------"
 	return
     elif index < 1:
+	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Item index can't be less than 1")
 	print "\n---------------Item index can't be less than 1---------------"
+	wait_minute()
 	return
+	
 
     print "\nEnter new notification price:"
     new_price = float(raw_input())
     if new_price >= items[index-1].actual_p:
+	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Entered price is more than the Actual price")
 	print "\n---------------Entered price is more than the Actual price---------------"
+	wait_minute()
 	return
+	
 
     items[index-1].notif_p = new_price
 
@@ -289,8 +305,10 @@ def update_notif_p(items):
 	    notify_items.append(item)
 
     if len(notify_items) > 0:
-        print "\n**********Notification Alert !!! **********\nFollowing items are below their notification price"
+	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Notification \n Items are below their notification price")
+	print "\n**********Notification Alert !!! **********\nFollowing items are below their notification price"
         print_item_list(notify_items)
+	wait_minute()
     
 if __name__ == "__main__":
     items = []
@@ -318,3 +336,4 @@ if __name__ == "__main__":
 	   process_input(i, items)
 	elif len(items) > 0:
 	   update_notif_p(items)
+	   #client.messages.create(to = '+917742090330',from_ = '+19898635482',body = "work done. updated")
