@@ -168,11 +168,12 @@ def add_item_to_track(items):
         notif_p = float(raw_input())
         temp_item = Item(company, url, notif_p)
         
-        if temp_item.actual_p < temp_item.notif_p:
+        if temp_item.actual_p > temp_item.notif_p:
             print "\n---------------Item price is already less than notification price---------------"
             return
         else:
             items.append(temp_item)
+            print"You will be Notified"
     except:
         print "An error occured"
         pass
@@ -217,7 +218,7 @@ def edit_notification_price(items):
     print "\nEnter new notification price:"
     new_price = float(raw_input())
     if new_price >= items[index-1].actual_p:
-	print "\n---------------Entered price is already in notification range---------------"
+	print "\n---------------Entered price is more than the Actual price---------------"
 	return
 
     items[index-1].notif_p = new_price
@@ -317,4 +318,3 @@ if __name__ == "__main__":
 	   process_input(i, items)
 	elif len(items) > 0:
 	   update_notif_p(items)
-
