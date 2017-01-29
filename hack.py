@@ -1,11 +1,11 @@
 import requests
-from twilio.rest import TwilioRestClient
 from bs4 import BeautifulSoup
 import sys, select
 from urlparse import urlparse
+from twilio.rest import TwilioRestClient
 
-ACCOUNT_SID = 'ACd3b93f42e01ee88dae905dc43c918518'
-AUTH_TOKEN = 'fb53ad4602e42b7ed6cce7b0a97a4d43'
+ACCOUNT_SID = 'ACc918f614700d15867b561eef5a333dc5'
+AUTH_TOKEN = '44d4559b5d2660a7d0af38b77cdbb7fb'
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 def wait_minute():
@@ -30,8 +30,7 @@ class Item:
 	else:
 	    self.get_fk_title()
 	    self.get_fk_price()
-	  
-	
+	  	
     def get_sd_price(self):
 	try:
 	    r = requests.get(self.url)
@@ -73,7 +72,7 @@ class Item:
 	        self.actual_p = float(span_data.text.strip().replace(',',''))
 		data_obtained = 1
 	    except:
-	        print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
+	        pass
 
 	if len(soup.find_all("div", {"class":"sims-fbt-rows"})) > 0:	#to get data from this item
 	    try:
@@ -83,8 +82,7 @@ class Item:
 	        self.actual_p = float(price_text.split()[1].replace(',',''))
 		data_obtained = 1
 	    except:
-	        print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
-
+	        pass
 	if data_obtained == 0 and len(soup.find_all("div",{"id":"tmmSwatches"})) > 0:	#to get data from swatch, mainly in books
 	    try:
 	        data = soup.find_all("div", {"id":"tmmSwatches"})[0]
@@ -93,7 +91,7 @@ class Item:
 	        self.actual_p = float(span_data.text.strip().replace(',',''))
 		data_obtained = 1
 	    except:
-	        print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
+	        print "\n------Working-------"
 
 	if data_obtained == 0 and len(soup.find_all("div", {"id":"buybox"})) > 0:    #to fetch data from buybox
 	    try:
@@ -102,8 +100,8 @@ class Item:
 	        self.actual_p = float(div_data.text.strip().replace(',',''))  
 		data_obtained = 1
 	    except:
-	        print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
-	   
+	        pass
+
 	#print self.actual_p
 
     def get_amazon_title(self):
@@ -119,8 +117,7 @@ class Item:
 	        else:
 		    self.prod_name = title
 	except:
-	    print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
-        #print self.prod_name
+	    pass
 
     def get_fk_price(self):
 	try:
@@ -152,13 +149,13 @@ class Item:
 	        self.prod_name = temp_title
             #print self.prod_name
 	except:
-	    print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
+	    #print "\n---------------Incorrect URL or site has been recently modified. Try different item---------------"
 	    pass
 	    
 
 def add_item_to_track(items):
     try:
-        print "\nPaste URL of product from Snapdeal/Amazon/Flipkart:"
+        print "\nPaste URL of product from E commerce site:"
 
         url = raw_input().strip()
         parsed_uri = urlparse(url)
@@ -176,16 +173,15 @@ def add_item_to_track(items):
         print "\nEnter price below which you want to be notified:"
         notif_p = float(raw_input())
         temp_item = Item(company, url, notif_p)
+        client.messages.create(to = '+917742090330',from_ = '+19898635482',body = "you will be notified")
         
-        if temp_item.actual_p > temp_item.notif_p:
-	    items.append(temp_item)
-            client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Item price is more than notification price. you will be notified.")
+        if temp_item.actual_p < temp_item.notif_p:
             print "\n---------------Item price is already less than notification price---------------"
-            wait_minute()
-	    return
+            return
         else:
-            print"no need to be Notified"
+            items.append(temp_item)
     except:
+        print "An error occured"
         pass
 
 
@@ -219,23 +215,18 @@ def edit_notification_price(items):
     print "\nEnter index of item to be edited:"
     index = int(raw_input())
     if index > len(items):
-	print "\n---------------Number of items is less than given index-------------"
-	return
+	   print "\n---------------Number of items is less than given index-------------"
+	   return
     elif index < 1:
-	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Item index can't be less than 1")
-	print "\n---------------Item index can't be less than 1---------------"
-	wait_minute()
-	return
-	
+	   print "\n---------------Item index can't be less than 1---------------"
+	   return
 
     print "\nEnter new notification price:"
     new_price = float(raw_input())
     if new_price >= items[index-1].actual_p:
-	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Entered price is more than the Actual price")
-	print "\n---------------Entered price is more than the Actual price---------------"
-	wait_minute()
+	print "\n---------------Entered price is more than the actual price---------------"
+	client.messages.create(to = '+917742090330',from_ = '+19898635482',body = "Sorry. Entered price is more than the actual price")
 	return
-	
 
     items[index-1].notif_p = new_price
 
@@ -305,10 +296,8 @@ def update_notif_p(items):
 	    notify_items.append(item)
 
     if len(notify_items) > 0:
-	client.messages.create(to="+917742090330", from_="+12679407040", body = "\n Notification \n Items are below their notification price")
-	print "\n**********Notification Alert !!! **********\nFollowing items are below their notification price"
+        print "\n**********Notification Alert !!! **********\nFollowing items are below their notification price"
         print_item_list(notify_items)
-	wait_minute()
     
 if __name__ == "__main__":
     items = []
@@ -336,4 +325,4 @@ if __name__ == "__main__":
 	   process_input(i, items)
 	elif len(items) > 0:
 	   update_notif_p(items)
-	   #client.messages.create(to = '+917742090330',from_ = '+19898635482',body = "work done. updated")
+
