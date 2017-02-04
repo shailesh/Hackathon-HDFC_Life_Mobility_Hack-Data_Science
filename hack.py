@@ -4,8 +4,8 @@ import sys, select
 from urlparse import urlparse
 from twilio.rest import TwilioRestClient
 
-ACCOUNT_SID = 'ACc918f614700d15867b561eef5a333dc5'
-AUTH_TOKEN = '44d4559b5d2660a7d0af38b77cdbb7fb'
+ACCOUNT_SID = '*********************'
+AUTH_TOKEN = '***********************'
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 def wait_minute():
